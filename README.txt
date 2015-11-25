@@ -13,7 +13,8 @@
 　　・CONSUMER_KEY, CONSUMER_SECRET
 　　・ACCESS_TOKEN, ACCESS_TOKE_SECRET
 　　の四つの取得が必要
-４．取得した情報をもとに，"author.json"ファイルを書き換える
+４．取得した情報をもとに，"author_sample.json"ファイルを書き換える
+５．書き換えた"author_sample.json"ファイルのファイル名を"author.json"に変更する
 
 ＜実行方法＞
 実行コマンド ruby -Ku get-conversation-from-twitter.rb ＜クエリ＞
