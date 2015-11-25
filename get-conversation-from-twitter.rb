@@ -67,7 +67,7 @@ loop do
     # 新しく発見された会話のツイートをスタックに格納
     @tweets.push(tweet) 
   end
-  
+
   ##########################
   ##  未発見の会話の探索end  ##
   ##########################
@@ -125,7 +125,7 @@ loop do
 
   puts "------------------------------------------------------"
   puts "searched the newest 100 tweets including \"#{query}\""
-  puts "#{count} conversations were saved in \"#{directory_name}/conversations\"．"
+  puts "#{count} conversations were saved in \"#{directory_name}\"．"
   puts "------------------------------------------------------"
 
   # 一回のループあたりで，
