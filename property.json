@@ -1,0 +1,5 @@
+{
+  "excluding repeated tweet_id": false,
+  "excluding repeated text": true,
+  "blacklist": false
+}

@@ -20,7 +20,7 @@ class Tweet
 
   attr_reader :text, :tweet_id, :user_id, :reply_to_tweet_id, :reply_to_user_id
 
-  def initialize(text = "",tweet_id = "", user_id = "", reply_to_tweet_id = "", reply_to_user_id = "")
+  def initialize(text = "", tweet_id = "", user_id = "", reply_to_tweet_id = "", reply_to_user_id = "")
     @text = text
     @tweet_id = tweet_id 
     @user_id = user_id
@@ -41,15 +41,9 @@ class Tweet
   
   # textから "@<user_name> " を削除した文字列を返すメソッド 
   def text_without_atmark
-    output = @text unless self.reply?
-    if self.reply? then 
-      if @text.start_with?("@") then
-        output = @text[(@text.index(" ") + 1)..@text.size] if self.reply?
-      else
-        output = @text
-      end
-    else
-      output = @text 
+    output = @text
+    while (output =~ /@\w+/) == 0 do
+      output = output[(output.index(" ") + 1)..output.size]
     end
     return output
   end

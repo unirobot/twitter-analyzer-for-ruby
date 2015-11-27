@@ -1,4 +1,4 @@
-# Search.rb
+# get-conversation-from-twitter.rb
 
 require 'oauth'
 require 'json'
@@ -7,6 +7,7 @@ require 'uri'
 require './my-twitter.rb'
 require './tweet.rb'
 require './text.rb'
+require './property.rb'
 
 #########################
 ##         準備         ##
@@ -20,20 +21,33 @@ twitter.ready_to_access unless twitter.ready_to_access?
 directory_name = "./database"
 Dir.mkdir(directory_name) unless Dir.exist?(directory_name)
 
-# ツイートの検索結果の重複を避けるためのログファイルの読み込み
-list_json_name = "#{directory_name}/tweet_id_list.json"
-
-# jsonファイルが存在しない場合は新規作成する
-Text.new(["{", "\"sample_tweet_id\":\"sample_file_name\"", "}"]).write(list_json_name) unless File.exist?(list_json_name)
-
-# jsonファイルから読み込む
-list_json = File.open(list_json_name) do |io|
-  JSON.load(io)
-  # <tweet_id> => <file_name>
-end
-
 # コマンドからの引数を検索クエリとする
 query = (ARGV[0]==nil)?("料理"):ARGV[0] # コマンドからの引数がない場合は"料理"を検索
+
+##############################################################
+#  検索結果から特定のツイートを除外するためのプロパティ設定とログファイルの読み込み #
+##############################################################
+
+# propertyファイルの読み込み
+property = Property.init_from_json("property.json")
+
+# ツイートの検索結果の重複を避けるためのログファイルの読み込み
+tweet_list_json_name = "#{directory_name}/tweet_list.json"
+# jsonファイルが存在しない場合は新規作成する
+Text.new(["{", "\"sample_tweet_id\":\"sample_tweet_text\"", "}"]).write(tweet_list_json_name) unless File.exist?(tweet_list_json_name)
+# jsonファイルから読み込む
+tweet_list_json = Property.init_from_json(tweet_list_json_name) # => <tweet_id> => <file_name>
+
+# blacklist ファイルの読み込み準備
+blacklist_file_name = "#{directory_name}/blacklist.txt"
+# ファイルが存在しない場合新規作成
+Text.new().write(blacklist_file_name) unless File.exist?(blacklist_file_name)
+# ファイル読み込み
+blacklist = Text.read(blacklist_file_name)
+
+##############################################################
+#  検索結果から特定の~~                終わり                     #
+##############################################################
 
 # 保存したファイル数をカウントする変数
 # コンソール出力に利用するだけなのでなくてもよい
@@ -61,9 +75,6 @@ loop do
     # replyでない場合は除外
     next unless tweet.reply?
 
-    # もしすでにデータベースに保存されている（list_jsonに記憶してある）場合は除外
-    next if list_json.has_key?(tweet.tweet_id)    
-
     # 新しく発見された会話のツイートをスタックに格納
     @tweets.push(tweet) 
   end
@@ -78,11 +89,19 @@ loop do
 
   # １会話ごとにファイル出力するためのループ
   @tweets.size.times do |i|
+    tweet = @tweets[i]
+    # もしすでにデータベースに保存されている（list_jsonに記憶してある）場合は除外
+    next if (property.on?("excluding repeated tweet_id") && tweet_list_json.key?(tweet.tweet_id))
+    # 全く同じ文章の
+    next if (property.on?("excluding repeated text") && tweet_list_json.value?(tweet.text_without_atmark))
+    # もしblacklistに登録されていれば除外
+    next if (property.on?("blacklist") && blacklist.include?(tweet.user_id))
+
     # ファイル名の準備
     file_name = sprintf("#{directory_name}/data%05d.txt", Dir.glob("#{directory_name}/*.txt").count)
 
     # 会話の配列の取得
-    conversation = twitter.get_conversation(@tweets[i].tweet_id)
+    conversation = twitter.get_conversation(tweet.tweet_id)
 
     # 発話数が2未満で会話になっていない場合は除外する
     next if conversation.size < 2
@@ -99,9 +118,9 @@ loop do
     output.write(file_name)
 
     # ログファイルの更新
-    list_json[@tweets[i].tweet_id] = file_name
-    File.open(list_json_name, "w") do |io|
-      JSON.dump(list_json, io)
+    tweet_list_json[tweet.tweet_id] = tweet.text_without_atmark
+    File.open(tweet_list_json_name, "w") do |io|
+      JSON.dump(tweet_list_json, io)
     end
 
     # コンソールへの出力
