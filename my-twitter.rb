@@ -12,6 +12,20 @@ class Twitter
     return Twitter.new(author["consumer_key"], author["consumer_secret"], author["access_token"], author["access_token_secret"])
   end
 
+  # 指定した時間だけsleepするクラスメソッド
+  def self.sleep_for_API(minutes = 15, output = true)
+    if output then
+      puts "----------------------------------------"
+      puts "sleeping #{minutes} minutes to wait for API limit. ('.' means one minute passed)"
+      puts "(please input {<Ctrl> + 'C'} to interrupt this program)"
+    end
+    minutes.times do |i|
+      puts "." if output
+      sleep(60) # => 5 minutes
+    end
+    puts "----------------------------------------" if output
+  end
+
   # initialize method 
   def initialize(consumer_key = "", consumer_secret = "", access_token = "", access_token_secret = "")
     @consumer_key = consumer_key
@@ -73,12 +87,13 @@ class Twitter
     return result = JSON[response.body] # レスポンスをJSON形式に変換
   end   
 
-  def rate_limit(resources = "")
+  # resourcesで指定したAPIの残リミットを返すメソッド
+  def rate_limit(resources = "statuses")
     request_url = "https://api.twitter.com/1.1/"
     request_url << "application/rate_limit_status.json"
     request_url << "?resources=#{resources}" unless resources == ""
     response = self.get(request_url) # リクエストの送信
-    return result = JSON[response.body] # レスポンスをJSON形式に変換
+    return JSON[response.body] # レスポンスをJSON形式に変換
   end
 
   # tweet_id_strで指定したツイートのリプライ元をcountだけ取得し，配列として返すメソッド
@@ -99,6 +114,4 @@ class Twitter
     end
     return array.reverse
   end
-
-
 end

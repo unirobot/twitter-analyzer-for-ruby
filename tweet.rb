@@ -39,11 +39,11 @@ class Tweet
     return (@reply_to_tweet_id == nil)?false:true 
   end
   
-  # textから "@<user_name> " を削除した文字列を返すメソッド 
+  # textから "@<user_name> "もしくは"@<user_name>\n" を削除した文字列を返すメソッド 
   def text_without_atmark
     output = @text
-    while (output =~ /@\w+/) == 0 do
-      output = output[(output.index(" ") + 1)..output.size]
+    while (output =~ /[ \n]*@\w+/) == 0 do
+      output.slice!(/[ \n]*@\w+[ \n]*/)
     end
     return output
   end

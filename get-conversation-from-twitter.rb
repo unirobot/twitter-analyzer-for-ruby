@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # get-conversation-from-twitter.rb
 require 'bundler/setup'
 
@@ -51,10 +50,6 @@ blacklist = Text.read(blacklist_file_name)
 #  検索結果から特定の~~                終わり                     #
 ##############################################################
 
-# 保存したファイル数をカウントする変数
-# コンソール出力に利用するだけなのでなくてもよい
-count = 0
-
 ###########################
 #      ここから検索ループ      #
 ###########################
@@ -89,12 +84,18 @@ loop do
   ##       会話の抽出処理start      ##
   ##################################
 
+  # 保存したファイル数をカウントする変数
+  # コンソール出力に利用するだけなのでなくてもよい
+  count = 0
+
+
   # １会話ごとにファイル出力するためのループ
   @tweets.size.times do |i|
     tweet = @tweets[i]
+
     # もしすでにデータベースに保存されている（list_jsonに記憶してある）場合は除外
     next if (property.on?("excluding repeated tweet_id") && tweet_list_json.key?(tweet.tweet_id))
-    # 全く同じ文章の
+    # 全く同じ文章の場合は除外
     next if (property.on?("excluding repeated text") && tweet_list_json.value?(tweet.text_without_atmark))
     # もしblacklistに登録されていれば除外
     next if (property.on?("blacklist") && blacklist.include?(tweet.user_id))
@@ -139,7 +140,6 @@ loop do
   ##        会話の抽出処理end       ##
   ##################################
 
-
   ##################
   ## 処理結果の表示 ##
   ##################
@@ -149,33 +149,12 @@ loop do
   puts "#{count} conversations were saved in \"#{directory_name}\"．"
   puts "------------------------------------------------------"
 
-  # 一回のループあたりで，
-  # /search/ API 消費 1
-  # /statuses/ API 消費 (count * 会話数)
-  #puts "------------------------------------------------------"
-  #puts "#{twitter.rate_limit("statuses")}" # 残APIの表示
-  #puts "------------------------------------------------------"
-
-  #######################
-  # API回復のためsleep処理 #
-  #######################
-
-  # sleep時間の設定
-  minutes = 15
-
-  puts "----------------------------------------"
-  puts "sleeping #{minutes} minutes to wait for API limit. ('.' means one minute passed)"
-  puts "(please input {<Ctrl> + 'C'}) to interrupt the next loop"
-
-  minutes.times do |i|
-    puts "."
-    sleep(60) # => 5 minutes
-  end
-
-  puts "----------------------------------------"
-
-  #######################
-  #       sleep終了      #
-  #######################
-
+  ##################################
+  ##      API残量のチェック・sleep      ##
+  ##################################
+  
+  # APIの残量をチェックし，残量0であればsleepする
+  rate_limit = twitter.rate_limit("statuses")
+  puts "rate limit remaining : #{rate_limit["resources"]["statuses"]["/statuses/show/:id"]["remaining"]}"
+  Twitter.sleep_for_API if rate_limit["resources"]["statuses"]["/statuses/show/:id"]["remaining"] == 0
 end
