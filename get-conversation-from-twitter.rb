@@ -1,4 +1,6 @@
+# -*- coding: utf-8 -*-
 # get-conversation-from-twitter.rb
+require 'bundler/setup'
 
 require 'oauth'
 require 'json'
