@@ -148,6 +148,10 @@ loop do
   puts "#{count} conversations were saved in \"#{directory_name}\"．"
   puts "------------------------------------------------------"
 
+  if count == 0 then
+    puts "sleeping for a minute because no file was saved"
+    sleep(60)
+  end
   ##################################
   ##      API残量のチェック・sleep      ##
   ##################################
@@ -155,5 +159,7 @@ loop do
   # APIの残量をチェックし，残量0であればsleepする
   rate_limit = twitter.rate_limit("statuses")
   puts "rate limit remaining : #{rate_limit["resources"]["statuses"]["/statuses/show/:id"]["remaining"]}"
+#  Twitter.sleep_for_API if rate_limit["resources"]["aplication"]["/rate_limit_status"]["remaining"] < 3  
   Twitter.sleep_for_API if rate_limit["resources"]["statuses"]["/statuses/show/:id"]["remaining"] == 0
+#  Twitter.sleep_for_API if rate_limit["resources"]["search"]["/search/tweets"]["remaining"] == 0  
 end
