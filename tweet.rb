@@ -58,8 +58,3 @@ class Tweet
     return "#{@user_id}:#{self.text_without_atmark}"
   end
 end
-
-puts Tweet.new("@abc \n@bcd cde").text_without_atmark
-puts Tweet.new("@abc\n@bcd cde").text_without_atmark
-puts Tweet.new("@abc  \n@bcd\n\ncde").text_without_atmark
-puts Tweet.new(" \n@abc\n@bcd cde").text_without_atmark
