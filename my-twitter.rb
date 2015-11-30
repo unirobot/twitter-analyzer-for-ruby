@@ -11,8 +11,9 @@ class Twitter
     author = open(json_file_name) do |io|
       JSON.load(io)
     end
-    access_token_max = author["access_token"].size
-    return Twitter.new(author["consumer_key"], author["consumer_secret"], author["access_token"][@@access_token_index], author["access_token_secret"][@@access_token_index])
+#    access_token_max = author["access_token"].size
+#    return Twitter.new(author["consumer_key"], author["consumer_secret"], author["access_token"][@@access_token_index], author["access_token_secret"][@@access_token_index])
+    return Twitter.new(author["consumer_key"], author["consumer_secret"], author["access_token"], author["access_token_secret"])
   end
 
   # 指定した時間だけsleepするクラスメソッド
