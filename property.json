@@ -1,5 +1,9 @@
 {
   "excluding repeated tweet_id": false,
   "excluding repeated text": true,
-  "blacklist": false
+  "blacklist": false,
+  "search new tweets": true,
+  "get and save conversations": true,
+  "sleep": true,
+  "change access token": false
 }

@@ -57,4 +57,16 @@ class Tweet
   def format
     return "#{@user_id}:#{self.text_without_atmark}"
   end
+
+  # json形式のhashを返すメソッド
+  def hash
+    output = Hash.new()
+    output["text"] = @text
+    output["id"] = @tweet_id
+    output["user"] = Hash.new
+    output["user"]["id"] = @user_id
+    output["in_reply_to_status_id"] = @reply_to_tweet_id
+    output["in_reply_to_user_id"] = @reply_to_user_id
+    return output
+  end
 end

@@ -3,9 +3,11 @@
 # ファイル読み込みを簡略化しただけで，基本的な機能は配列と同じである
 
 class Text < Array
-  # Text クラスではなく，Arrayクラスを返すファクトリメソッド
+  # fileからTextを一行ずつ読み込むファクトリメソッド
+  # もしfile_nameが存在しない場合は新規作成する
   def self.read(file_name)
     text = Text.new
+    self.new().write(file_name) unless File.exist?(file_name)
     File.open(file_name) do |file|
       while l = file.gets
         text.push(l)
