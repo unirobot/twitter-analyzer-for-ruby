@@ -206,7 +206,7 @@ loop do
     
     # APIの残量を取得
     rate_limit = twitter.rate_limit("statuses,search,application")
-
+    
     # 処理しやすいように hash に格納
     remaining = Hash.new
     # propertyで指定し，行っている処理のみAPIの残数を取得
