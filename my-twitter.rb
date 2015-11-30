@@ -4,12 +4,15 @@ require 'json'
 require 'uri'
 
 class Twitter
+  @@access_token_index = 0
+  @@access_token_max = 0
   # jsonファイルから認証作業に必要な情報を読み込むメソッド
   def self.authorized_from_json(json_file_name = "./author.json")
     author = open(json_file_name) do |io|
       JSON.load(io)
     end
-    return Twitter.new(author["consumer_key"], author["consumer_secret"], author["access_token"], author["access_token_secret"])
+    access_token_max = author["access_token"].size
+    return Twitter.new(author["consumer_key"], author["consumer_secret"], author["access_token"][@@access_token_index], author["access_token_secret"][@@access_token_index])
   end
 
   # 指定した時間だけsleepするクラスメソッド
@@ -24,6 +27,12 @@ class Twitter
       sleep(60) # => 5 minutes
     end
     puts "----------------------------------------" if output
+  end
+
+  def self.change_access_token(json_file_name = "./author.json")
+    @@access_token_index += 1
+    @@access_token_index %= @@access_token_max
+    return self.authorized_from_json(json_file_name)
   end
 
   # initialize method 
